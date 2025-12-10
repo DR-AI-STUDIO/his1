@@ -3,94 +3,110 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>사극분장 마스터클래스 Part 1 (Final Fix)</title>
+    <title>사극분장 마스터클래스 : 심화 이론</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;500;600;700;900&display=swap'); /* 명조체 추가 (사극 느낌) */
 
         /* --- 디자인 시스템 --- */
         :root {
-            --primary: #8E2DE2; --secondary: #4A00E0; --accent: #fbc2eb; 
-            --text-primary: #1a202c; --text-secondary: #2d3748; --text-muted: #4a5568;
-            --cat-1: #ff6b6b; --cat-2: #4ecdc4; --cat-3: #45b7d1;
+            --primary: #5D4037; /* Brown for History */
+            --secondary: #D84315; /* Burnt Orange for Accent */
+            --accent: #FFECB3; /* Cream for Background */
+            --text-primary: #3E2723; 
+            --text-secondary: #5D4037;
+            --modern-blue: #2980b9; /* For modern materials */
         }
 
-        /* --- 기본 구조 및 스케일링 --- */
+        /* --- 기본 구조 --- */
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body, html {
             width: 100%; height: 100%; overflow: hidden;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            font-family: 'Inter', 'Noto Sans KR', sans-serif;
+            background: #2b2b2b; /* Dark backdrop */
+            font-family: 'Inter', 'Noto Serif KR', serif; /* 명조체 우선 */
         }
         .ppt-wrapper { width: 100vw; height: 100vh; display: flex; justify-content: center; align-items: center; }
         .ppt-container {
             width: 1280px; height: 720px; position: relative; transform-origin: center;
-            background-color: #fdfbfb; overflow: hidden; border-radius: 16px;
-            box-shadow: 0 25px 80px rgba(0,0,0,0.25);
+            background-color: #fdfbfb; overflow: hidden; border-radius: 8px;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
         }
 
         /* 컨트롤 버튼 */
         .control-buttons { position: absolute; top: 20px; right: 20px; z-index: 2000; display: flex; gap: 8px; }
         .control-buttons button {
-            background: rgba(255, 255, 255, 0.9); border: none; padding: 10px 15px;
+            background: rgba(0, 0, 0, 0.7); color: white; border: none; padding: 10px 15px;
             border-radius: 8px; cursor: pointer; font-weight: 600;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1); transition: transform 0.2s;
+            transition: all 0.2s;
         }
-        .control-buttons button:hover { transform: scale(1.05); }
+        .control-buttons button:hover { background: var(--secondary); }
 
-        /* 슬라이드 쇼 스타일 */
+        /* 슬라이드 공통 */
         .slideshow-view { width: 100%; height: 100%; position: relative; }
         .slide {
             width: 100%; height: 100%; position: absolute; top: 0; left: 0; opacity: 0;
-            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1); pointer-events: none; 
-            transform: translateX(30px) scale(0.98);
-            background: white;
+            transition: opacity 0.6s ease-in-out; pointer-events: none; 
+            background: #FAFAFA;
             display: flex; justify-content: center; align-items: center;
             z-index: 1;
         }
-        .slide.current { opacity: 1; pointer-events: auto; transform: translateX(0) scale(1); z-index: 10; }
+        .slide.current { opacity: 1; pointer-events: auto; z-index: 10; }
         
-        /* 슬라이드 콘텐츠 */
         .slide-content { 
-            width: 100%; height: 100%; padding: 60px 80px; 
+            width: 100%; height: 100%; padding: 50px 70px; 
             display: flex; flex-direction: column; 
-            background: url('https://www.transparenttextures.com/patterns/cubes.png');
+            background-image: linear-gradient(to right, rgba(0,0,0,0.02) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,0,0,0.02) 1px, transparent 1px);
+            background-size: 40px 40px;
         }
         
-        .header { margin-bottom: 30px; border-bottom: 2px solid #eee; padding-bottom: 20px; }
-        .header h1 { font-size: 2.8em; color: var(--text-primary); margin-bottom: 10px; font-weight: 800; }
-        .header p { font-size: 1.2em; color: var(--text-muted); }
+        /* 헤더 스타일 */
+        .header { margin-bottom: 20px; border-bottom: 3px solid var(--primary); padding-bottom: 15px; width: 100%; display: flex; justify-content: space-between; align-items: flex-end; }
+        .header h1 { font-size: 2.6em; color: var(--text-primary); margin: 0; font-weight: 800; font-family: 'Noto Serif KR', serif; }
+        .header span { font-size: 1em; color: var(--text-secondary); font-weight: 600; opacity: 0.7; font-family: 'Inter', sans-serif; }
 
-        .body { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 1.2em; position: relative; }
+        .body { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; width: 100%; position: relative; }
 
         /* 타이틀 슬라이드 */
-        .title-slide { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; }
-        .title-slide .slide-content { justify-content: center; align-items: center; text-align: center; background: none; }
-        .title-slide h1 { font-size: 4.5em; color: white; margin-bottom: 20px; text-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .title-slide { background: linear-gradient(135deg, #3E2723 0%, #5D4037 100%); color: white; }
+        .title-slide .slide-content { justify-content: center; align-items: center; text-align: center; background: none; border: 20px solid rgba(255,255,255,0.1); }
+        .title-slide h1 { font-size: 4em; color: #FFECB3; margin-bottom: 20px; font-weight: 900; }
+        .title-slide h2 { font-size: 1.8em; color: #D7CCC8; font-weight: 400; margin-bottom: 50px; }
+        .curriculum-box { text-align: left; background: rgba(0,0,0,0.3); padding: 30px; border-radius: 10px; border-left: 5px solid var(--secondary); }
+        .curriculum-box p { margin: 10px 0; font-size: 1.2em; color: #EFEBE9; }
 
-        /* 레이아웃 */
-        .split-layout { display: flex; width: 100%; height: 100%; gap: 40px; }
-        .split-item { flex: 1; display: flex; flex-direction: column; justify-content: center; }
-        .video-container {
-            width: 100%; height: 400px; position: relative;
-            border-radius: 16px; overflow: hidden; box-shadow: 0 15px 40px rgba(0,0,0,0.2);
-            background: #000;
-        }
-        .video-container iframe { width: 100%; height: 100%; border: none; }
+        /* 레이아웃 컴포넌트 */
+        .two-column { display: flex; width: 100%; height: 100%; gap: 40px; align-items: center; }
+        .col { flex: 1; display: flex; flex-direction: column; gap: 20px; }
+        
+        .box { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); border-top: 4px solid #ccc; }
+        .box h3 { font-size: 1.4em; margin-bottom: 15px; color: var(--text-primary); display: flex; align-items: center; gap: 10px; }
+        .box p, .box li { font-size: 1.1em; line-height: 1.6; color: #555; font-family: 'Inter', sans-serif; }
+        .box ul { padding-left: 20px; }
 
-        .info-box {
-            background: #f8f9fa; border-left: 5px solid var(--secondary);
-            padding: 25px; border-radius: 0 10px 10px 0; margin-bottom: 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05); width: 100%;
-        }
-        .info-box h3 { color: var(--secondary); margin-bottom: 10px; font-size: 1.3em; }
+        /* 시대별 특징 스타일 */
+        .goryeo { border-color: #9b59b6; } .goryeo h3 { color: #8e44ad; }
+        .joseon { border-color: var(--primary); } .joseon h3 { color: var(--primary); }
 
-        .card-container { display: flex; gap: 20px; width: 100%; }
-        .card { 
-            flex: 1; background: white; padding: 30px; border-radius: 12px; 
-            box-shadow: 0 8px 20px rgba(0,0,0,0.08); text-align: center; border-top: 5px solid var(--primary);
-        }
-        .card-icon { font-size: 3em; margin-bottom: 20px; display: block; }
+        /* 재료 비교 테이블 */
+        .comparison-table { width: 100%; border-collapse: collapse; margin-top: 20px; background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .comparison-table th { background: var(--text-primary); color: white; padding: 15px; font-size: 1.2em; }
+        .comparison-table td { padding: 15px; border-bottom: 1px solid #eee; text-align: center; font-size: 1.1em; color: #444; }
+        .comparison-table tr:last-child td { border-bottom: none; }
+        .highlight { font-weight: bold; color: var(--secondary); }
+
+        /* 비디오 컨테이너 */
+        .video-wrapper { width: 100%; height: 450px; background: #000; border-radius: 10px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        .video-wrapper iframe { width: 100%; height: 100%; border: none; }
+
+        /* 관자(Gwanja) 비주얼 */
+        .rank-badge { display: flex; align-items: center; gap: 20px; margin-bottom: 15px; background: #fff; padding: 15px; border-radius: 50px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .circle { width: 50px; height: 50px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; color: white; font-size: 0.8em; box-shadow: inset 0 2px 5px rgba(0,0,0,0.2); }
+        .gold { background: linear-gradient(135deg, #FFD700, #FDB931); border: 2px solid #B8860B; color: #5c4002; }
+        .jade { background: linear-gradient(135deg, #5EE7DF, #B490CA); background: #00bf8f; border: 2px solid #00664f; }
+        .bone { background: #eee; border: 2px solid #bbb; color: #555; }
+        
+        /* 팁 박스 */
+        .pro-tip { background: #E3F2FD; border-left: 5px solid #2196F3; padding: 15px 20px; margin-top: 20px; width: 100%; font-size: 1em; color: #0D47A1; }
 
     </style>
 </head>
@@ -107,108 +123,41 @@
                 <div class="slide title-slide current">
                     <div class="slide-content">
                         <h1>사극분장 마스터클래스</h1>
-                        <h2>Part 1. 이론 및 수염 제작 기초</h2>
-                        <p style="margin-top: 50px; opacity: 0.8;">수염의 역사부터 땋기와 찌기까지</p>
-                    </div>
-                </div>
-
-                <div class="slide">
-                    <div class="slide-content">
-                        <div class="header">
-                            <h1>사극 분장의 의의</h1>
-                            <p>수염은 단순한 털이 아닌, 캐릭터의 '신분'과 '성격'입니다.</p>
-                        </div>
-                        <div class="body">
-                            <div class="split-layout">
-                                <div class="split-item">
-                                    <div class="info-box">
-                                        <h3>👑 신분의 상징</h3>
-                                        <p>수염의 길이, 숱, 모양은 등장인물의 지위와 나이를 직관적으로 보여주는 장치입니다.</p>
-                                    </div>
-                                    <div class="info-box" style="border-color: var(--primary);">
-                                        <h3>😡 성격의 표현</h3>
-                                        <p>거친 수염은 무관이나 산적, 잘 정돈된 수염은 문관이나 선비 등 캐릭터의 성향을 대변합니다.</p>
-                                    </div>
-                                </div>
-                                <div class="split-item" style="align-items: center; justify-content: center; background: #eee; border-radius: 12px; color: #888;">
-                                    (이미지 공간)
-                                </div>
-                            </div>
+                        <h2>이론 심화 및 재료학 (1시간 과정)</h2>
+                        <div class="curriculum-box">
+                            <p>Part 1. 시대와 역사 (고려 vs 조선)</p>
+                            <p>Part 2. 신분의 상징 (디테일 고증)</p>
+                            <p>Part 3. 재료의 진화 (Material Science)</p>
+                            <p>Part 4. 제작 실무 (땋기 및 열처리)</p>
                         </div>
                     </div>
                 </div>
 
                 <div class="slide">
                     <div class="slide-content">
-                        <div class="header">
-                            <h1>분장 재료의 진화</h1>
-                            <p>시대의 흐름에 따른 수염 재료의 변화</p>
-                        </div>
+                        <div class="header"><h1>1. 시대별 분장 특징</h1><span>역사적 배경의 이해</span></div>
                         <div class="body">
-                            <div class="card-container">
-                                <div class="card" style="border-color: #aaa;">
-                                    <span class="card-icon">🐂</span>
-                                    <h3>과거: 야크 & 생사</h3>
-                                    <p>질감이 리얼하지만<br>관리가 어렵고 비쌈</p>
-                                </div>
-                                <div class="card" style="border-color: var(--secondary); transform: scale(1.05);">
-                                    <span class="card-icon">🧵</span>
-                                    <h3>현재: 인조사 (Synthetic)</h3>
-                                    <p>균일한 굵기 (24/30합)<br>열처리 및 내구성 우수</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="slide">
-                    <div class="slide-content">
-                        <div class="header">
-                            <h1>수염 제작 프로세스</h1>
-                            <p>직모 상태의 인조사가 분장용 수염이 되기까지</p>
-                        </div>
-                        <div class="body">
-                            <div style="display: flex; align-items: center; width: 100%; justify-content: space-around;">
-                                <div style="text-align: center;">
-                                    <div style="font-size: 3em; margin-bottom: 10px;">🧶</div>
-                                    <h3>Step 1. 땋기</h3>
-                                    <p>컬(Curl) 형성</p>
-                                </div>
-                                <div style="font-size: 2em; color: #ccc;">➡</div>
-                                <div style="text-align: center;">
-                                    <div style="font-size: 3em; margin-bottom: 10px;">💧</div>
-                                    <h3>Step 2. 적시기</h3>
-                                    <p>재료 준비</p>
-                                </div>
-                                <div style="font-size: 2em; color: #ccc;">➡</div>
-                                <div style="text-align: center;">
-                                    <div style="font-size: 3em; margin-bottom: 10px;">♨️</div>
-                                    <h3>Step 3. 찌기</h3>
-                                    <p>열처리 고정</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="slide">
-                    <div class="slide-content">
-                        <div class="header">
-                            <h1>Step 1. 수염 땋기 (Braiding)</h1>
-                            <p>수염의 굵기와 질감을 결정하는 핵심 단계입니다.</p>
-                        </div>
-                        <div class="body">
-                            <div class="split-layout">
-                                <div class="split-item" style="flex: 1.5;">
-                                    <div class="video-container">
-                                        <iframe src="https://www.youtube.com/embed/0ES-Zs0XnRU" title="수염 땋기 영상" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                            <div class="two-column">
+                                <div class="col">
+                                    <div class="box goryeo">
+                                        <h3>🪷 고려시대 (Goryeo)</h3>
+                                        <ul>
+                                            <li><strong>문화:</strong> 불교 중심, 개방적 문화</li>
+                                            <li><strong>특징:</strong> 남녀 모두 꾸밈에 관대함.</li>
+                                            <li><strong>수염:</strong> 깔끔하고 정돈된 스타일 선호. 너무 덥수룩하지 않게 연출.</li>
+                                            <li><strong>피부:</strong> 백분 사용 등 비교적 하얀 피부톤 연출.</li>
+                                        </ul>
                                     </div>
                                 </div>
-                                <div class="split-item">
-                                    <div class="info-box">
-                                        <h3>🛠 땋기 포인트</h3>
-                                        <p>• <strong>촘촘함:</strong> 빈틈없이 땋아야 자글자글한 컬이 나옵니다.</p>
-                                        <p>• <strong>굵기 조절:</strong> 얇게 땋으면 섬세한 수염, 굵게 땋으면 거친 수염이 됩니다.</p>
+                                <div class="col">
+                                    <div class="box joseon">
+                                        <h3>📜 조선시대 (Joseon)</h3>
+                                        <ul>
+                                            <li><strong>문화:</strong> 유교 중심 (신체발부 수지부모)</li>
+                                            <li><strong>특징:</strong> 털을 깎지 않음 → 상투와 긴 수염.</li>
+                                            <li><strong>수염:</strong> 권위와 인품의 상징. 풍성하고 긴 수염(관우형, 염소형)이 주류.</li>
+                                            <li><strong>피부:</strong> 자연스러운 황색조, 검버섯 등으로 노련미 표현.</li>
+                                        </ul>
                                     </div>
                                 </div>
                             </div>
@@ -218,88 +167,22 @@
 
                 <div class="slide">
                     <div class="slide-content">
-                        <div class="header">
-                            <h1>Step 2. 수염 적시기 (Wetting)</h1>
-                            <p>땋기 전후 혹은 찜 과정에서 수분을 공급합니다.</p>
-                        </div>
+                        <div class="header"><h1>2. 신분의 상징: 머리 형태</h1><span>고증의 디테일</span></div>
                         <div class="body">
-                            <div class="split-layout">
-                                <div class="split-item">
-                                    <div class="info-box">
-                                        <h3>💡 수분의 중요성</h3>
-                                        <p>1. 정전기를 방지하여 작업 효율을 높입니다.</p>
-                                        <p>2. 열처리 시 수분이 있어야 형태가 고정됩니다.</p>
-                                        <p>※ 건조한 상태로 가열하면 재료가 탈 수 있습니다.</p>
+                            <div class="two-column">
+                                <div class="col">
+                                    <div class="box">
+                                        <h3>🧢 상투와 망건 (Manggeon)</h3>
+                                        <p>조선시대 성인 남자의 필수품. 이마를 두르는 검은 띠.</p>
+                                        <p><strong>분장 포인트:</strong> 망건 자국이나 이마의 눌림 등을 표현하면 리얼리티가 살아남. 망건 위로 삐져나온 잔머리 처리가 중요.</p>
+                                    </div>
+                                    <div class="pro-tip">
+                                        💡 <strong>Tip:</strong> 사극 분장 시 망건 라인을 너무 깔끔하게 따면 가발 티가 납니다. 잔머리를 심어 자연스럽게 그라데이션 하세요.
                                     </div>
                                 </div>
-                                <div class="split-item" style="flex: 1.5;">
-                                    <div class="video-container">
-                                        <iframe src="https://www.youtube.com/embed/qmSwc5jn9WE" title="인조수염 물에 적시기" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="slide">
-                    <div class="slide-content">
-                        <div class="header">
-                            <h1>땋기 완료 상태</h1>
-                            <p>열처리를 들어가기 직전의 모습입니다.</p>
-                        </div>
-                        <div class="body">
-                            <div style="width: 70%; height: 80%; box-shadow: 0 10px 30px rgba(0,0,0,0.2); border-radius: 12px; overflow: hidden;">
-                                <img src="https://github.com/DR-AI-STUDIO/images/blob/main/%EB%95%8B%EC%9D%80%20%EC%88%98%EC%97%BC.jpg?raw=true" alt="땋은 수염 이미지" style="width: 100%; height: 100%; object-fit: cover;">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="slide">
-                    <div class="slide-content">
-                        <div class="header">
-                            <h1>Step 3. 찌기 (Steaming) 이론</h1>
-                            <p>왜 수염을 쪄야 할까요?</p>
-                        </div>
-                        <div class="body">
-                            <div class="info-box" style="background: #fff; border-left-color: var(--primary);">
-                                <h3>🔥 열가소성 (Thermoplasticity)</h3>
-                                <p>인조사는 열을 가하면 변형되고, 식으면 그 형태가 고정됩니다.</p>
-                            </div>
-                            <div style="display: flex; gap: 20px; width: 100%; margin-top: 20px;">
-                                <div style="flex: 1; text-align: center;">
-                                    <h4>BEFORE (직모)</h4>
-                                    <div style="background: #ddd; padding: 20px; border-radius: 8px;">볼륨감 없음</div>
-                                </div>
-                                <div style="flex: 1; text-align: center;">
-                                    <h4>AFTER (곱슬모)</h4>
-                                    <div style="background: var(--accent); padding: 20px; border-radius: 8px; color: #333;">풍성한 볼륨감</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="slide">
-                    <div class="slide-content">
-                        <div class="header">
-                            <h1>열처리 방법 1: 찜기 & 오븐</h1>
-                            <p>가장 전통적이고 안정적인 방식입니다.</p>
-                        </div>
-                        <div class="body">
-                            <div class="split-layout">
-                                <div class="split-item">
-                                    <div class="info-box">
-                                        <h3>🍲 찜기 (Steamer)</h3>
-                                        <p>• 끓는 물의 증기로 15~20분간 쪄냅니다.</p>
-                                        <p>• 수분 공급으로 털 손상이 적습니다.</p>
-                                    </div>
-                                </div>
-                                <div class="split-item">
-                                    <div class="info-box" style="border-left-color: #ff9966;">
-                                        <h3>🍪 오븐 (Oven)</h3>
-                                        <p>• 물에 적신 상태로 호일에 감싸 굽습니다.</p>
+                                <div class="col">
+                                    <div style="background:#eee; height: 300px; display:flex; justify-content:center; align-items:center; border-radius:10px; color:#aaa;">
+                                        [참고 이미지: 상투와 망건을 착용한 선비]
                                     </div>
                                 </div>
                             </div>
@@ -309,19 +192,32 @@
 
                 <div class="slide">
                     <div class="slide-content">
-                        <div class="header">
-                            <h1>열처리 방법 2: 전자레인지</h1>
-                            <p>빠르고 간편하게 할 수 있는 현대적인 방법입니다.</p>
-                        </div>
+                        <div class="header"><h1>2-1. 신분의 상징: 관자 (Gwanja)</h1><span>작은 단추 하나에 담긴 계급</span></div>
                         <div class="body">
-                            <div style="background: white; padding: 40px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); max-width: 800px;">
-                                <h3 style="color: var(--secondary); margin-bottom: 20px;">⚡ 사용법</h3>
-                                <ol style="text-align: left; line-height: 2; padding-left: 20px;">
-                                    <li>수염을 물에 <strong>충분히</strong> 적십니다.</li>
-                                    <li>비닐/랩에 감싸 약 2~3분간 돌립니다.</li>
-                                    <li>꺼내서 식힌 뒤, <strong>완전히 건조</strong>합니다.</li>
-                                </ol>
-                                <p style="margin-top: 20px; color: var(--cat-1); font-weight: bold;">⚠️ 주의: 물기가 없으면 인조사가 녹을 수 있습니다.</p>
+                            <p style="margin-bottom: 30px; font-size: 1.2em;">망건 좌우에 달린 작은 단추인 <strong>'관자'</strong>의 재질은 신분을 나타냅니다.</p>
+                            
+                            <div style="width: 80%;">
+                                <div class="rank-badge">
+                                    <div class="circle gold">금/옥</div>
+                                    <div>
+                                        <strong>1품 ~ 2품 (최상류층)</strong><br>
+                                        금관자(Gold) 또는 옥관자(Jade) 사용. 화려하고 광택이 있음.
+                                    </div>
+                                </div>
+                                <div class="rank-badge">
+                                    <div class="circle bone" style="background: #e0e0e0; border-color: #999;">호박</div>
+                                    <div>
+                                        <strong>3품 ~ 4품 (중상류층)</strong><br>
+                                        호박(Amber)이나 마노 등 보석류 사용. 은은한 색감.
+                                    </div>
+                                </div>
+                                <div class="rank-badge">
+                                    <div class="circle bone">뼈/뿔</div>
+                                    <div>
+                                        <strong>서민 / 하급 관리</strong><br>
+                                        동물의 뼈(Bone), 뿔(Horn), 나무 등 소박한 재질. 광택이 없음.
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -329,13 +225,196 @@
 
                 <div class="slide">
                     <div class="slide-content">
-                        <div class="header">
-                            <h1>Part 1 마무리</h1>
-                            <p>재료 준비 완료.</p>
-                        </div>
+                        <div class="header"><h1>3. 분장 재료의 진화: 털(Hair)</h1><span>과거와 현재의 재료 비교</span></div>
                         <div class="body">
-                            <h2>Next: 수염 치기 & 붙이기</h2>
-                            <p>Part 2 파일을 실행해주세요.</p>
+                            <table class="comparison-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 20%;">구분</th>
+                                        <th style="width: 40%; background: #5D4037;">과거: 생사 (Raw Silk)</th>
+                                        <th style="width: 40%; background: #2980b9;">현재: 인조사 (Synthetic)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>재질</strong></td>
+                                        <td>누에고치에서 뽑은 천연 섬유</td>
+                                        <td>폴리에스테르 계열 합성 섬유</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>장점</strong></td>
+                                        <td>광택이 적고 사람 털과 가장 유사함.<br>극도의 리얼리티.</td>
+                                        <td><span class="highlight">가격이 저렴</span>하고 내구성이 좋음.<br>열처리(컬) 유지가 매우 잘됨.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>단점</strong></td>
+                                        <td>습기에 약해 촬영 중 컬이 풀림.<br>잘 끊어지고 염색이 까다로움.</td>
+                                        <td>인위적인 광택이 있을 수 있음.<br>(파우더 처리로 광택 제거 필요)</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>용도</strong></td>
+                                        <td>클로즈업 촬영, 영화 메인 주연</td>
+                                        <td>드라마, 대규모 엑스트라, 무대 분장</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="slide">
+                    <div class="slide-content">
+                        <div class="header"><h1>4. 접착제의 진화</h1><span>피부 안전성과 접착력</span></div>
+                        <div class="body">
+                            <div class="two-column">
+                                <div class="col">
+                                    <div class="box" style="border-top-color: #D84315;">
+                                        <h3>🌲 스프릿 검 (Spirit Gum)</h3>
+                                        <p><strong>[전통적 재료]</strong></p>
+                                        <ul>
+                                            <li>송진(Resin)을 알코올에 녹인 것.</li>
+                                            <li><strong>특징:</strong> 노란빛 액체. 두드리면(Tapping) 끈적임이 극대화됨.</li>
+                                            <li><strong>장점:</strong> 가격이 저렴하고 구하기 쉬움.</li>
+                                            <li><strong>단점:</strong> 알코올 성분으로 피부 자극 심함. 땀에 약함. 굳으면 결정이 생김.</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="box" style="border-top-color: #2980b9;">
+                                        <h3>💧 프로세이드 (Pros-Aide)</h3>
+                                        <p><strong>[현대적 재료]</strong></p>
+                                        <ul>
+                                            <li>의료용 수성 접착제 (Medical Grade).</li>
+                                            <li><strong>특징:</strong> 우유 같은 흰색 액체 → 마르면 투명해짐.</li>
+                                            <li><strong>장점:</strong> <span class="highlight">피부 자극이 적음</span>. 땀과 물에 매우 강함. 유연성이 좋아 표정 연기에 유리.</li>
+                                            <li><strong>단점:</strong> 제거 시 전용 리무버 필수. 가격이 비쌈.</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="slide">
+                    <div class="slide-content">
+                        <div class="header"><h1>5. 리얼리티 이론: 모발의 방향</h1><span>해부학적 접근</span></div>
+                        <div class="body">
+                            <div class="two-column">
+                                <div class="col">
+                                    <p style="font-size: 1.2em; line-height: 1.6;">
+                                        수염을 붙일 때 가장 중요한 것은 <strong>'모공의 방향'</strong>입니다.<br><br>
+                                        1. <strong>인중:</strong> 45도 아래로 내려가며 입술 중앙으로 모임.<br>
+                                        2. <strong>턱:</strong> 턱 끝을 중심으로 부채꼴로 퍼짐.<br>
+                                        3. <strong>구렛나루:</strong> 귀 라인을 따라 수직으로 내려오다 턱 방향으로 휨.<br><br>
+                                        이 방향을 무시하면 '가짜 수염' 티가 확연히 납니다.
+                                    </p>
+                                </div>
+                                <div class="col" style="align-items: center;">
+                                    <div style="width: 300px; height: 350px; border: 2px dashed #ccc; border-radius: 50%; display: flex; justify-content: center; align-items: center; position: relative;">
+                                        (얼굴 모발 지도)<br>↘ ↓ ↙<br>→ 🧔 ←
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="slide">
+                    <div class="slide-content">
+                        <div class="header"><h1>6. 수염 제작 실무: 가공</h1><span>직모를 곱슬모로 만드는 이유</span></div>
+                        <div class="body">
+                            <div class="box" style="width: 80%; text-align: center;">
+                                <h3>"왜 수염을 땋고 쪄야 하는가?"</h3>
+                                <p style="margin-top: 20px;">
+                                    사람의 실제 수염은 단면이 불규칙하여 약간의 곱슬기가 있고 거칩니다.<br>
+                                    반면 인조사(가발사)는 공장에서 나온 매끄러운 <strong>직모(Straight)</strong>입니다.<br><br>
+                                    <span class="highlight">땋기(Braiding) + 열처리(Steaming)</span> 과정을 통해<br>
+                                    인위적인 직모에 <strong>불규칙한 굴곡(Texture)</strong>과 <strong>볼륨(Volume)</strong>을 주어<br>
+                                    리얼리티를 부여하는 필수 과정입니다.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="slide">
+                    <div class="slide-content">
+                        <div class="header"><h1>Step 1. 수염 땋기 (Braiding)</h1><span>컬의 텐션을 결정하는 단계</span></div>
+                        <div class="body">
+                            <div class="video-wrapper">
+                                <iframe src="https://www.youtube.com/embed/0ES-Zs0XnRU" title="수염 땋기" allowfullscreen></iframe>
+                            </div>
+                            <div class="pro-tip" style="margin-top: 15px;">
+                                <strong>Check Point:</strong> 최대한 촘촘하고 단단하게 땋아야, 풀었을 때 자글자글한 '아프로 펌' 같은 질감이 나옵니다. 느슨하게 땋으면 웨이브가 너무 커져서 수염 같지 않습니다.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="slide">
+                    <div class="slide-content">
+                        <div class="header"><h1>Step 2. 적시기 & 찌기</h1><span>열가소성을 이용한 형태 고정</span></div>
+                        <div class="body">
+                            <div class="two-column">
+                                <div class="col" style="flex: 1.5;">
+                                    <div class="video-wrapper">
+                                        <iframe src="https://www.youtube.com/embed/qmSwc5jn9WE" title="수염 적시기" allowfullscreen></iframe>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="box">
+                                        <h3>♨️ 찜 (Steaming) 원리</h3>
+                                        <ol>
+                                            <li><strong>수분 공급:</strong> 마른 상태로 가열하면 인조사가 녹거나 탑니다.</li>
+                                            <li><strong>열처리:</strong> 100℃ 이상의 증기로 분자 구조를 일시적으로 느슨하게 합니다.</li>
+                                            <li><strong>냉각:</strong> 식으면서 땋아진 모양대로 분자가 재결합하여 <strong>영구적인 컬</strong>이 완성됩니다.</li>
+                                        </ol>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="slide">
+                    <div class="slide-content">
+                        <div class="header"><h1>7. 심화: 컬러 믹싱 (Color Mixing)</h1><span>단색은 가짜다</span></div>
+                        <div class="body">
+                            <div class="two-column">
+                                <div class="col">
+                                    <p>검은색 수염이라고 해서 <strong>검정(Black) 100%</strong>만 쓰면 먹물을 칠한 것처럼 부자연스럽습니다.</p>
+                                    <div class="box">
+                                        <h3>🎨 리얼 믹싱 레시피</h3>
+                                        <ul>
+                                            <li><strong>청년/장년:</strong> 검정(70%) + 다크브라운(20%) + 적갈색(10%)</li>
+                                            <li><strong>중년:</strong> 검정 + 회색(Gray) 믹스 (후추와 소금, Pepper & Salt)</li>
+                                            <li><strong>노년:</strong> 백색 + 아이보리 (순백색은 오히려 가짜 같음)</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="col" style="display: flex; gap: 10px; justify-content: center;">
+                                    <div style="width: 50px; height: 150px; background: black;"></div>
+                                    <div style="width: 50px; height: 150px; background: #4e342e;"></div>
+                                    <div style="width: 50px; height: 150px; background: #9e9e9e;"></div>
+                                    <div style="align-self: center;">➡️ 섞어서 사용</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="slide">
+                    <div class="slide-content">
+                        <div class="header"><h1>강의 요약 및 다음 단계</h1></div>
+                        <div class="body">
+                            <ul style="font-size: 1.5em; line-height: 2; list-style-type: none; text-align: center;">
+                                <li>✅ <strong>시대 배경:</strong> 고려의 단정함 vs 조선의 위엄</li>
+                                <li>✅ <strong>신분 고증:</strong> 상투, 망건, 관자(금/옥/뼈)의 디테일</li>
+                                <li>✅ <strong>재료 과학:</strong> 인조사와 프로세이드의 활용</li>
+                                <li>✅ <strong>제작 준비:</strong> 땋고(형태) → 쪄서(고정) → 말리기</li>
+                            </ul>
+                            <p style="margin-top: 50px; color: var(--secondary);">다음 시간(Part 2)에는 만들어진 수염을 <strong>'치고(Hackling)' 붙이는 실습</strong>을 진행합니다.</p>
                         </div>
                     </div>
                 </div>
@@ -351,8 +430,10 @@
         function showSlide(index) {
             slides.forEach((slide, i) => {
                 slide.classList.remove('current');
+                slide.style.opacity = 0; // 명시적 초기화
                 if (i === index) {
                     slide.classList.add('current');
+                    slide.style.opacity = 1;
                 }
             });
         }
@@ -383,7 +464,10 @@
         }
 
         window.addEventListener('resize', scalePpt);
-        window.addEventListener('load', scalePpt);
+        window.addEventListener('load', () => {
+            scalePpt();
+            showSlide(0);
+        });
     </script>
 </body>
 </html>
