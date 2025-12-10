@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>사극분장 마스터클래스 Part 1</title>
+    <title>사극분장 마스터클래스 Part 1 (Final Fix)</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&display=swap');
 
-        /* --- 디자인 시스템 변수 --- */
+        /* --- 디자인 시스템 --- */
         :root {
             --primary: #8E2DE2; --secondary: #4A00E0; --accent: #fbc2eb; 
             --text-primary: #1a202c; --text-secondary: #2d3748; --text-muted: #4a5568;
@@ -29,15 +29,16 @@
             box-shadow: 0 25px 80px rgba(0,0,0,0.25);
         }
 
-        /* --- 편집 모드 등 UI 요소 (숨김 처리) --- */
-        .control-buttons { position: absolute; top: 20px; right: 20px; z-index: 1001; display: flex; gap: 8px; }
+        /* 컨트롤 버튼 */
+        .control-buttons { position: absolute; top: 20px; right: 20px; z-index: 2000; display: flex; gap: 8px; }
         .control-buttons button {
             background: rgba(255, 255, 255, 0.9); border: none; padding: 10px 15px;
             border-radius: 8px; cursor: pointer; font-weight: 600;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1); transition: transform 0.2s;
         }
+        .control-buttons button:hover { transform: scale(1.05); }
 
-        /* --- 슬라이드 쇼 스타일 --- */
+        /* 슬라이드 쇼 스타일 */
         .slideshow-view { width: 100%; height: 100%; position: relative; }
         .slide {
             width: 100%; height: 100%; position: absolute; top: 0; left: 0; opacity: 0;
@@ -45,14 +46,15 @@
             transform: translateX(30px) scale(0.98);
             background: white;
             display: flex; justify-content: center; align-items: center;
+            z-index: 1;
         }
-        .slide.current { opacity: 1; pointer-events: auto; transform: translateX(0) scale(1); }
+        .slide.current { opacity: 1; pointer-events: auto; transform: translateX(0) scale(1); z-index: 10; }
         
-        /* --- 슬라이드 내부 레이아웃 --- */
+        /* 슬라이드 콘텐츠 */
         .slide-content { 
             width: 100%; height: 100%; padding: 60px 80px; 
             display: flex; flex-direction: column; 
-            background: url('https://www.transparenttextures.com/patterns/cubes.png'); /* 배경 패턴 */
+            background: url('https://www.transparenttextures.com/patterns/cubes.png');
         }
         
         .header { margin-bottom: 30px; border-bottom: 2px solid #eee; padding-bottom: 20px; }
@@ -61,50 +63,34 @@
 
         .body { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 1.2em; position: relative; }
 
-        /* 타이틀 슬라이드 전용 */
+        /* 타이틀 슬라이드 */
         .title-slide { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; }
         .title-slide .slide-content { justify-content: center; align-items: center; text-align: center; background: none; }
         .title-slide h1 { font-size: 4.5em; color: white; margin-bottom: 20px; text-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-        .title-slide h2 { font-size: 2em; color: #a2c2e1; font-weight: 400; }
-        .title-slide .decoration { font-size: 5em; margin-bottom: 20px; animation: float 3s ease-in-out infinite; }
 
-        /* 2단 분할 레이아웃 */
+        /* 레이아웃 */
         .split-layout { display: flex; width: 100%; height: 100%; gap: 40px; }
         .split-item { flex: 1; display: flex; flex-direction: column; justify-content: center; }
-        .split-item img, .split-item iframe { 
-            width: 100%; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); 
+        .video-container {
+            width: 100%; height: 400px; position: relative;
+            border-radius: 16px; overflow: hidden; box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+            background: #000;
         }
-        
-        /* 리스트 박스 스타일 */
+        .video-container iframe { width: 100%; height: 100%; border: none; }
+
         .info-box {
             background: #f8f9fa; border-left: 5px solid var(--secondary);
             padding: 25px; border-radius: 0 10px 10px 0; margin-bottom: 20px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.05); width: 100%;
         }
         .info-box h3 { color: var(--secondary); margin-bottom: 10px; font-size: 1.3em; }
-        .info-box p { color: var(--text-secondary); line-height: 1.6; }
 
-        /* 비디오 컨테이너 */
-        .video-container {
-            width: 100%; height: 400px; position: relative;
-            border-radius: 16px; overflow: hidden; box-shadow: 0 15px 40px rgba(0,0,0,0.2);
-        }
-        .video-container iframe { width: 100%; height: 100%; border: none; }
-
-        @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-20px); }
-            100% { transform: translateY(0px); }
-        }
-
-        /* 3단 비교 카드 */
         .card-container { display: flex; gap: 20px; width: 100%; }
         .card { 
             flex: 1; background: white; padding: 30px; border-radius: 12px; 
             box-shadow: 0 8px 20px rgba(0,0,0,0.08); text-align: center; border-top: 5px solid var(--primary);
         }
         .card-icon { font-size: 3em; margin-bottom: 20px; display: block; }
-        .card h3 { margin-bottom: 15px; font-size: 1.4em; }
 
     </style>
 </head>
@@ -120,7 +106,6 @@
                 
                 <div class="slide title-slide current">
                     <div class="slide-content">
-                        <div class="decoration">🎭</div>
                         <h1>사극분장 마스터클래스</h1>
                         <h2>Part 1. 이론 및 수염 제작 기초</h2>
                         <p style="margin-top: 50px; opacity: 0.8;">수염의 역사부터 땋기와 찌기까지</p>
@@ -146,8 +131,7 @@
                                     </div>
                                 </div>
                                 <div class="split-item" style="align-items: center; justify-content: center; background: #eee; border-radius: 12px; color: #888;">
-                                    (캐릭터 예시 이미지 공간)
-                                    <br>수염의 모양에 따른 캐릭터 변화
+                                    (이미지 공간)
                                 </div>
                             </div>
                         </div>
@@ -165,17 +149,12 @@
                                 <div class="card" style="border-color: #aaa;">
                                     <span class="card-icon">🐂</span>
                                     <h3>과거: 야크 & 생사</h3>
-                                    <p>질감이 리얼하지만<br>관리가 어렵고<br>가격이 비쌈</p>
+                                    <p>질감이 리얼하지만<br>관리가 어렵고 비쌈</p>
                                 </div>
                                 <div class="card" style="border-color: var(--secondary); transform: scale(1.05);">
                                     <span class="card-icon">🧵</span>
                                     <h3>현재: 인조사 (Synthetic)</h3>
-                                    <p>균일한 굵기 (24/30합)<br>열처리에 강함<br>우수한 가성비</p>
-                                </div>
-                                <div class="card" style="border-color: var(--primary);">
-                                    <span class="card-icon">✨</span>
-                                    <h3>장점</h3>
-                                    <p>습기에 강하여<br>촬영 중 컬이<br>풀리지 않음</p>
+                                    <p>균일한 굵기 (24/30합)<br>열처리 및 내구성 우수</p>
                                 </div>
                             </div>
                         </div>
@@ -191,27 +170,21 @@
                         <div class="body">
                             <div style="display: flex; align-items: center; width: 100%; justify-content: space-around;">
                                 <div style="text-align: center;">
-                                    <div style="font-size: 3em; margin-bottom: 10px;">💧</div>
-                                    <h3>1. 적시기</h3>
-                                    <p>수분 공급</p>
-                                </div>
-                                <div style="font-size: 2em; color: #ccc;">➡</div>
-                                <div style="text-align: center;">
                                     <div style="font-size: 3em; margin-bottom: 10px;">🧶</div>
-                                    <h3>2. 땋기</h3>
+                                    <h3>Step 1. 땋기</h3>
                                     <p>컬(Curl) 형성</p>
                                 </div>
                                 <div style="font-size: 2em; color: #ccc;">➡</div>
                                 <div style="text-align: center;">
-                                    <div style="font-size: 3em; margin-bottom: 10px;"♨️</div>
-                                    <h3>3. 찌기</h3>
-                                    <p>열처리 고정</p>
+                                    <div style="font-size: 3em; margin-bottom: 10px;">💧</div>
+                                    <h3>Step 2. 적시기</h3>
+                                    <p>재료 준비</p>
                                 </div>
                                 <div style="font-size: 2em; color: #ccc;">➡</div>
                                 <div style="text-align: center;">
-                                    <div style="font-size: 3em; margin-bottom: 10px;">✂️</div>
-                                    <h3>4. 치기</h3>
-                                    <p>형태 가공</p>
+                                    <div style="font-size: 3em; margin-bottom: 10px;">♨️</div>
+                                    <h3>Step 3. 찌기</h3>
+                                    <p>열처리 고정</p>
                                 </div>
                             </div>
                         </div>
@@ -221,48 +194,47 @@
                 <div class="slide">
                     <div class="slide-content">
                         <div class="header">
-                            <h1>Step 1. 재료 준비 (적시기)</h1>
-                            <p>땋기 전 인조사를 물에 충분히 적시는 과정입니다.</p>
-                        </div>
-                        <div class="body">
-                            <div class="split-layout">
-                                <div class="split-item" style="flex: 1.5;">
-                                    <div class="video-container" style="height: 500px;">
-                                        <iframe src="https://www.youtube.com/embed/qmSwc5jn9WE" title="인조수염 물에 적시기" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-                                    </div>
-                                </div>
-                                <div class="split-item">
-                                    <div class="info-box">
-                                        <h3>💡 왜 적셔야 하나요?</h3>
-                                        <p>1. 정전기를 방지하여 작업 효율을 높입니다.</p>
-                                        <p>2. 땋을 때 텐션(장력)을 일정하게 유지해 줍니다.</p>
-                                        <p>3. 잔털이 날리지 않아 깔끔하게 땋을 수 있습니다.</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="slide">
-                    <div class="slide-content">
-                        <div class="header">
-                            <h1>Step 2. 땋기 (Braiding)</h1>
+                            <h1>Step 1. 수염 땋기 (Braiding)</h1>
                             <p>수염의 굵기와 질감을 결정하는 핵심 단계입니다.</p>
                         </div>
                         <div class="body">
                             <div class="split-layout">
+                                <div class="split-item" style="flex: 1.5;">
+                                    <div class="video-container">
+                                        <iframe src="https://www.youtube.com/embed/0ES-Zs0XnRU" title="수염 땋기 영상" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                                    </div>
+                                </div>
                                 <div class="split-item">
                                     <div class="info-box">
                                         <h3>🛠 땋기 포인트</h3>
-                                        <p>• <strong>촘촘함:</strong> 빈틈없이 촘촘하게 땋아야 자글자글한 컬이 나옵니다.</p>
+                                        <p>• <strong>촘촘함:</strong> 빈틈없이 땋아야 자글자글한 컬이 나옵니다.</p>
                                         <p>• <strong>굵기 조절:</strong> 얇게 땋으면 섬세한 수염, 굵게 땋으면 거친 수염이 됩니다.</p>
-                                        <p>• <strong>마무리:</strong> 끝부분이 풀리지 않도록 매듭을 확실히 짓습니다.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="slide">
+                    <div class="slide-content">
+                        <div class="header">
+                            <h1>Step 2. 수염 적시기 (Wetting)</h1>
+                            <p>땋기 전후 혹은 찜 과정에서 수분을 공급합니다.</p>
+                        </div>
+                        <div class="body">
+                            <div class="split-layout">
+                                <div class="split-item">
+                                    <div class="info-box">
+                                        <h3>💡 수분의 중요성</h3>
+                                        <p>1. 정전기를 방지하여 작업 효율을 높입니다.</p>
+                                        <p>2. 열처리 시 수분이 있어야 형태가 고정됩니다.</p>
+                                        <p>※ 건조한 상태로 가열하면 재료가 탈 수 있습니다.</p>
                                     </div>
                                 </div>
                                 <div class="split-item" style="flex: 1.5;">
                                     <div class="video-container">
-                                        <iframe src="https://www.youtube.com/embed/0ES-Zs0XnRU" title="수염 땋기 영상" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                                        <iframe src="https://www.youtube.com/embed/qmSwc5jn9WE" title="인조수염 물에 적시기" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                                     </div>
                                 </div>
                             </div>
@@ -277,10 +249,9 @@
                             <p>열처리를 들어가기 직전의 모습입니다.</p>
                         </div>
                         <div class="body">
-                            <div class="image-container" style="width: 70%; height: 80%; box-shadow: 0 10px 30px rgba(0,0,0,0.2); border-radius: 12px; overflow: hidden;">
+                            <div style="width: 70%; height: 80%; box-shadow: 0 10px 30px rgba(0,0,0,0.2); border-radius: 12px; overflow: hidden;">
                                 <img src="https://github.com/DR-AI-STUDIO/images/blob/main/%EB%95%8B%EC%9D%80%20%EC%88%98%EC%97%BC.jpg?raw=true" alt="땋은 수염 이미지" style="width: 100%; height: 100%; object-fit: cover;">
                             </div>
-                            <p style="margin-top: 15px; font-size: 0.9em; color: #666;">※ 이 상태로 건조하면 컬이 생기지 않으므로 반드시 열처리가 필요합니다.</p>
                         </div>
                     </div>
                 </div>
@@ -294,16 +265,16 @@
                         <div class="body">
                             <div class="info-box" style="background: #fff; border-left-color: var(--primary);">
                                 <h3>🔥 열가소성 (Thermoplasticity)</h3>
-                                <p>인조사(합성섬유)는 열을 가하면 변형되고, 식으면 그 형태가 고정되는 성질이 있습니다.</p>
+                                <p>인조사는 열을 가하면 변형되고, 식으면 그 형태가 고정됩니다.</p>
                             </div>
                             <div style="display: flex; gap: 20px; width: 100%; margin-top: 20px;">
                                 <div style="flex: 1; text-align: center;">
-                                    <h4>BEFORE</h4>
-                                    <div style="background: #ddd; padding: 20px; border-radius: 8px;">직모 (Straight)<br>볼륨감 없음<br>인위적인 광택</div>
+                                    <h4>BEFORE (직모)</h4>
+                                    <div style="background: #ddd; padding: 20px; border-radius: 8px;">볼륨감 없음</div>
                                 </div>
                                 <div style="flex: 1; text-align: center;">
-                                    <h4>AFTER</h4>
-                                    <div style="background: var(--accent); padding: 20px; border-radius: 8px; color: #333;">곱슬모 (Curly)<br>풍성한 볼륨감<br>자연스러운 텍스처</div>
+                                    <h4>AFTER (곱슬모)</h4>
+                                    <div style="background: var(--accent); padding: 20px; border-radius: 8px; color: #333;">풍성한 볼륨감</div>
                                 </div>
                             </div>
                         </div>
@@ -321,16 +292,14 @@
                                 <div class="split-item">
                                     <div class="info-box">
                                         <h3>🍲 찜기 (Steamer)</h3>
-                                        <p>• <strong>방법:</strong> 끓는 물의 증기로 15~20분간 쪄냅니다.</p>
-                                        <p>• <strong>장점:</strong> 수분이 함께 공급되어 털의 손상이 적고 컬이 탄력 있습니다.</p>
-                                        <p>• <strong>주의:</strong> 너무 오래 찌면 인조사가 녹을 수 있으니 시간 엄수.</p>
+                                        <p>• 끓는 물의 증기로 15~20분간 쪄냅니다.</p>
+                                        <p>• 수분 공급으로 털 손상이 적습니다.</p>
                                     </div>
                                 </div>
                                 <div class="split-item">
                                     <div class="info-box" style="border-left-color: #ff9966;">
                                         <h3>🍪 오븐 (Oven)</h3>
-                                        <p>• <strong>방법:</strong> 물에 적신 상태로 호일에 감싸 저온 오븐에 굽습니다.</p>
-                                        <p>• <strong>특징:</strong> 대량 생산 시 유리하지만, 온도 조절 실패 시 재료가 탈 수 있습니다.</p>
+                                        <p>• 물에 적신 상태로 호일에 감싸 굽습니다.</p>
                                     </div>
                                 </div>
                             </div>
@@ -346,14 +315,13 @@
                         </div>
                         <div class="body">
                             <div style="background: white; padding: 40px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); max-width: 800px;">
-                                <h3 style="color: var(--secondary); margin-bottom: 20px;">⚡ 전자레인지 사용법</h3>
+                                <h3 style="color: var(--secondary); margin-bottom: 20px;">⚡ 사용법</h3>
                                 <ol style="text-align: left; line-height: 2; padding-left: 20px;">
-                                    <li>땋은 수염을 물에 <strong>충분히</strong> 적십니다. (건조한 상태 금지)</li>
-                                    <li>비닐봉지나 랩에 감싸 수분이 날아가지 않게 합니다.</li>
-                                    <li>약 2~3분간 돌립니다. (출력에 따라 조절)</li>
-                                    <li>꺼내서 식힌 뒤, <strong>완전히 건조</strong>될 때까지 기다립니다.</li>
+                                    <li>수염을 물에 <strong>충분히</strong> 적십니다.</li>
+                                    <li>비닐/랩에 감싸 약 2~3분간 돌립니다.</li>
+                                    <li>꺼내서 식힌 뒤, <strong>완전히 건조</strong>합니다.</li>
                                 </ol>
-                                <p style="margin-top: 20px; color: var(--cat-1); font-weight: bold;">⚠️ 주의: 물기가 없으면 인조사가 녹거나 탈 수 있습니다.</p>
+                                <p style="margin-top: 20px; color: var(--cat-1); font-weight: bold;">⚠️ 주의: 물기가 없으면 인조사가 녹을 수 있습니다.</p>
                             </div>
                         </div>
                     </div>
@@ -362,26 +330,12 @@
                 <div class="slide">
                     <div class="slide-content">
                         <div class="header">
-                            <h1>Part 1 마무리 & Next Step</h1>
-                            <p>이제 '재료'는 준비되었습니다. 다음은 '도구'로 만들 차례입니다.</p>
+                            <h1>Part 1 마무리</h1>
+                            <p>재료 준비 완료.</p>
                         </div>
                         <div class="body">
-                            <h2 style="margin-bottom: 40px; color: var(--text-primary);">다음 강의 예고: <span style="color: var(--secondary);">수염 치기 & 붙이기</span></h2>
-                            <div class="card-container">
-                                <div class="card" style="border-top: 5px solid var(--cat-1);">
-                                    <h3>1. 결정리</h3>
-                                    <p>뭉친 컬을 빗어<br>풍성하게 만들기</p>
-                                </div>
-                                <div class="card" style="border-top: 5px solid var(--cat-2);">
-                                    <h3>2. 길이 맞추기</h3>
-                                    <p>용도에 맞게<br>커팅 및 소분</p>
-                                </div>
-                                <div class="card" style="border-top: 5px solid var(--cat-3);">
-                                    <h3>3. 잔털 정리</h3>
-                                    <p>끝을 붓처럼<br>자연스럽게 처리</p>
-                                </div>
-                            </div>
-                            <button onclick="alert('2편에서 계속됩니다!')" style="margin-top: 50px; padding: 15px 40px; font-size: 1.2em; background: var(--secondary); color: white; border: none; border-radius: 30px; cursor: pointer;">2편 기대하기</button>
+                            <h2>Next: 수염 치기 & 붙이기</h2>
+                            <p>Part 2 파일을 실행해주세요.</p>
                         </div>
                     </div>
                 </div>
@@ -417,15 +371,12 @@
             }
         }
         
-        // 키보드 제어
         document.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowRight') nextSlide();
             if (e.key === 'ArrowLeft') prevSlide();
         });
 
-        // 초기화: PPT 스케일링
         function scalePpt() {
-            const wrapper = document.getElementById('pptWrapper');
             const container = document.getElementById('pptContainer');
             const scale = Math.min(window.innerWidth / 1280, window.innerHeight / 720) * 0.95;
             container.style.transform = `scale(${scale})`;
